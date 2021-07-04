@@ -2,8 +2,6 @@ const express = require("express");
 const app = express();
 const socketio = require("socket.io");
 
-
-
 app.use(express.static(__dirname + "/publics"));
 
 const expressServer = app.listen(8000, () => {
@@ -14,15 +12,25 @@ const io = socketio(expressServer);
 
 //Wait for any socket to connect and respond
 io.on("connection", (socket) => {
-  socket.emit("messageFromServer", {
-    data: "Welcome to the socketio Server!!  ",
+  //Build an array to send back with the img and endpoint for each namespace
+  let nsData = namespaces.map((ns) => {
+    return {
+      img: ns.img,
+      endpoint: ns.endpoint,
+    };
   });
-  socket.on("messageToServer", (dataFromClient) => {
-    console.log(dataFromClient);
-  });
+  console.log(nsData);
+  //Send the nsData back to the client, using SOCKET not IO,
+  //as we want it to go the client
 
-  socket.on("newMessageToServer", (msg) => {
-    //Emit the message to all connected Clients
-    io.emit("messageToClients", { text: msg.text });
+  socket.emit("nsList", nsData);
+});
+
+let namespaces = require("./data/namespaces");
+
+//Loop through each namespace and listen for a connection
+namespaces.forEach((namespace) => {
+  io.of(namespace.endpoint).on("connection", (socket) => {
+    console.log(`${socket.id} has joined ${namespace.endpoint}`);
   });
 });
