@@ -9,7 +9,6 @@ class Namespace {
   addRoom(roomObj) {
     this.rooms.push(roomObj);
   }
-
-
-  
 }
+
+module.exports = Namespace;
