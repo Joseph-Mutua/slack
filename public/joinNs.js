@@ -1,9 +1,9 @@
 function joinNs(endpoint) {
-  const nsSocket = io(`http://localhost:8000/${endpoint}`);
-  
+  nsSocket = io(`http://localhost:8000/${endpoint}`);
 
   nsSocket.on("nsRoomLoad", (nsRooms) => {
     console.log(nsRooms);
+
     //Get the rooms in that Namespace
     let roomList = document.querySelector(".room-list");
     roomList.innerHTML = "";
@@ -25,10 +25,20 @@ function joinNs(endpoint) {
         console.log(`Someone clicked on ${e.target.innerText}`);
       });
     });
+
+    //Add Room automatically... First time here
+    const topRoom = document.querySelector(".room");
+    const topRoomName = topRoom.innerText;
+
+    joinRoom(topRoomName);
   });
 
   nsSocket.on("messageToClients", (msg) => {
-    document.querySelector("#messages").innerHTML += `<li>${msg.text}</li>`;
+    console.log(msg);
+
+    const newMsg = buildHTML(msg);
+
+    document.querySelector("#messages").innerHTML += newMsg;
   });
 
   document.querySelector(".message-form").addEventListener("submit", (e) => {
@@ -37,7 +47,22 @@ function joinNs(endpoint) {
     let inputBox = document.querySelector("#user-message");
     const newMessage = inputBox.value;
 
-    socket.emit("newMessageToServer", { text: newMessage });
+    nsSocket.emit("newMessageToServer", { text: newMessage });
     inputBox.value = "";
   });
+
+  function buildHTML(msg) {
+    const convertedDate = new Date(msg.time).toLocaleString();
+    const newHtml = `<li>
+              <div class="user-image">
+                <img src="${msg.avatar}" width="30" height="30"/>
+              </div>
+              <div class="user-message">
+                <div class="user-name-time">${msg.username}<span> ${convertedDate}</span></div>
+                <div class="message-text">${msg.text}</div>
+              </div>
+            </li>`;
+
+    return newHtml;
+  }
 }

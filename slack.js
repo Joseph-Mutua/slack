@@ -19,7 +19,7 @@ io.on("connection", (socket) => {
       endpoint: ns.endpoint,
     };
   });
-  console.log(nsData);
+  // console.log(nsData);
   //Send the nsData back to the client, using SOCKET not IO,
   //as we want it to go the client
 
@@ -31,10 +31,49 @@ let namespaces = require("./data/namespaces");
 //Loop through each namespace and listen for a connection
 namespaces.forEach((namespace) => {
   io.of(namespace.endpoint).on("connection", (nsSocket) => {
-    console.log(`${nsSocket.id} has joined ${namespace.endpoint}`);
+    // console.log(`${nsSocket.id} has joined ${namespace.endpoint}`);
 
     //A chat has conected to one of our chat group namespaces
     //Send thtat ns group info back
     nsSocket.emit("nsRoomLoad", namespace.rooms);
+    nsSocket.on("joinRoom", async (roomToJoin, numberOfUsersCallback) => {
+      //Deal with history, once its available
+
+      nsSocket.join(roomToJoin);
+
+      //Get no of members in the room
+      const clients = await io.of("/wiki").in(roomToJoin).allSockets();
+
+      // console.log(clients.size);
+
+      numberOfUsersCallback(clients.size);
+    });
+
+    nsSocket.on("newMessageToServer", (msg) => {
+      const fullMsg = {
+        text: msg.text,
+        time: Date.now(),
+        username: "Joseph Mutua",
+        avatar:
+          "https://upload.wikimedia.org/wikipedia/en/thumb/b/b0/Avatar-Teaser-Poster.jpg/220px-Avatar-Teaser-Poster.jpg",
+      };
+
+      console.log(fullMsg);
+
+      //Send this message to all sockets that are in the room this socket is in
+      //How can we find out what rooms this socket is in??
+
+      console.log(nsSocket.rooms);
+
+      //The user will be in the 2nd room in the object list
+      //This is coz the socket is alwatys in its own room on connection
+      //Get the Keys
+
+      const roomTitle = Object.keys(nsSocket.rooms);
+
+      // console.log("Room Title", roomTitle);
+
+      io.of("/wiki").to(roomTitle).emit("messageToClients", fullMsg);
+    });
   });
 });
