@@ -30,7 +30,11 @@ let namespaces = require("./data/namespaces");
 
 //Loop through each namespace and listen for a connection
 namespaces.forEach((namespace) => {
-  io.of(namespace.endpoint).on("connection", (socket) => {
-    console.log(`${socket.id} has joined ${namespace.endpoint}`);
+  io.of(namespace.endpoint).on("connection", (nsSocket) => {
+    console.log(`${nsSocket.id} has joined ${namespace.endpoint}`);
+
+    //A chat has conected to one of our chat group namespaces
+    //Send thtat ns group info back
+    nsSocket.emit("nsRoomLoad", namespace.rooms);
   });
 });
