@@ -7,6 +7,7 @@ function joinNs(endpoint) {
     //Get the rooms in that Namespace
     let roomList = document.querySelector(".room-list");
     roomList.innerHTML = "";
+    
     nsRooms.forEach((room) => {
       let glyph;
       if (room.privateRoom) {

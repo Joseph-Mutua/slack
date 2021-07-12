@@ -42,11 +42,26 @@ namespaces.forEach((namespace) => {
       nsSocket.join(roomToJoin);
 
       //Get no of members in the room
-      const clients = await io.of("/wiki").in(roomToJoin).allSockets();
+      // const clients = await io.of("/wiki").in(roomToJoin).allSockets();
 
-      // console.log(clients.size);
+      // // console.log(clients.size);
 
-      numberOfUsersCallback(clients.size);
+      // numberOfUsersCallback(clients.size);
+
+      const nsRoom = namespace.rooms.find((room) => {
+        return room.roomTitle === roomToJoin;
+      });
+
+      console.log("NSROOM I JOINED", nsRoom);
+
+      nsSocket.emit("historyCatchUp", nsRoom.history);
+
+      //Send back the number of users in this room to ALL sockets
+
+      const clientsUpdate = await io.of("/wiki").in(roomToJoin).allSockets();
+      console.log("THE NEW NUMBER OF CLIENTS IS", clientsUpdate.size);
+
+      io.of("/wiki").in(roomToJoin).emit("UpdateMembers", clientsUpdate.size);
     });
 
     nsSocket.on("newMessageToServer", (msg) => {
@@ -63,7 +78,7 @@ namespaces.forEach((namespace) => {
       //Send this message to all sockets that are in the room this socket is in
       //How can we find out what rooms this socket is in??
 
-      console.log(nsSocket.rooms);
+      console.log("SOCKET ROOMS", nsSocket.rooms);
 
       //The user will be in the 2nd room in the object list
       //This is coz the socket is alwatys in its own room on connection
@@ -71,7 +86,16 @@ namespaces.forEach((namespace) => {
 
       const roomTitle = Object.keys(nsSocket.rooms);
 
-      // console.log("Room Title", roomTitle);
+      console.log("ROOM TITLE", roomTitle);
+
+      //We need to find the room object for this room
+      const nsRoom = namespaces[0].rooms.find((room) => {
+        return room.roomTitle === roomTitle;
+      });
+
+      console.log("NSroom", nsRoom);
+
+      nsRoom.addMessage(fullMsg);
 
       io.of("/wiki").to(roomTitle).emit("messageToClients", fullMsg);
     });
