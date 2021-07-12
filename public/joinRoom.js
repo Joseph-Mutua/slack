@@ -26,4 +26,19 @@ function joinRoom(roomName) {
 
     document.querySelector(".curr-room-text").innerText = `${roomName}`;
   });
+
+  function buildHTML(msg) {
+    const convertedDate = new Date(msg.time).toLocaleString();
+    const newHtml = `<li>
+              <div class="user-image">
+                <img src="${msg.avatar}" width="30" height="30"/>
+              </div>
+              <div class="user-message">
+                <div class="user-name-time">${msg.username}<span> ${convertedDate}</span></div>
+                <div class="message-text">${msg.text}</div>
+              </div>
+            </li>`;
+
+    return newHtml;
+  }
 }
