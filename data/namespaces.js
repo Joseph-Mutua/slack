@@ -4,6 +4,7 @@ const Room = require("../classes/Room");
 
 // Set up the namespaces
 let namespaces = [];
+
 let wikiNs = new Namespace(
   0,
   "Wiki",
