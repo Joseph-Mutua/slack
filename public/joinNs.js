@@ -1,13 +1,25 @@
 function joinNs(endpoint) {
-  nsSocket = io(`http://localhost:8000/${endpoint}`);
+
+  if (nsSocket) {
+    //Check to see if nsSocket is actually a socket
+    nsSocket.close();
+
+    //Remove the Event Listener before it is added again
+    document
+      .querySelector("#user-input")
+      .removeEventListener("submit", formSubmission);
+  }
+
+  nsSocket = io(`http://localhost:8000${endpoint}`);
 
   nsSocket.on("nsRoomLoad", (nsRooms) => {
+
     console.log(nsRooms);
 
     //Get the rooms in that Namespace
     let roomList = document.querySelector(".room-list");
     roomList.innerHTML = "";
-    
+
     nsRooms.forEach((room) => {
       let glyph;
       if (room.privateRoom) {
@@ -21,9 +33,11 @@ function joinNs(endpoint) {
 
     //Add a click listener for each Room
     let roomNodes = document.getElementsByClassName("room");
+    
     Array.from(roomNodes).forEach((elem) => {
       elem.addEventListener("click", (e) => {
-        console.log(`Someone clicked on ${e.target.innerText}`);
+        // console.log(`Someone clicked on ${e.target.innerText}`);
+        joinRoom(e.target.innerText);
       });
     });
 
@@ -42,7 +56,11 @@ function joinNs(endpoint) {
     document.querySelector("#messages").innerHTML += newMsg;
   });
 
-  document.querySelector(".message-form").addEventListener("submit", (e) => {
+  document
+    .querySelector(".message-form")
+    .addEventListener("submit", formSubmission);
+
+  function formSubmission (e) {
     //Prevent Form from automatic Submission
     e.preventDefault();
     let inputBox = document.querySelector("#user-message");
@@ -50,7 +68,7 @@ function joinNs(endpoint) {
 
     nsSocket.emit("newMessageToServer", { text: newMessage });
     inputBox.value = "";
-  });
+  };
 
   function buildHTML(msg) {
     const convertedDate = new Date(msg.time).toLocaleString();

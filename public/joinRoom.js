@@ -1,7 +1,7 @@
 function joinRoom(roomName) {
   //Send this root name to the Server
   nsSocket.emit("joinRoom", roomName, (newNumberOfMembers) => {
-    //We want to update the room Memeber total ow that we have joined
+    //We want to update the room Member total now that we have joined
     document.querySelector(
       ".curr-room-num-users"
     ).innerHTML = `${newNumberOfMembers}<span class="glyphicon glyphicon-user"></span>`;
@@ -18,8 +18,9 @@ function joinRoom(roomName) {
     });
     messagesUL.scrollTo(0, messagesUL.scrollHeight);
   });
-  nsSocket.on("UpdateMembers", (numMembers) => {
-    //We want to update the room Memeber total ow that we have joined
+
+  nsSocket.on("updateMembers", (numMembers) => {
+    //We want to update the room Member total ow that we have joined
     document.querySelector(
       ".curr-room-num-users"
     ).innerHTML = `${numMembers}<span class="glyphicon glyphicon-user"></span>`;

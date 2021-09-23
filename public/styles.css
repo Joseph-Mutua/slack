@@ -57,7 +57,7 @@ body {
 .search {
   font-size: 14px;
   color: #abb2bf;
-  position: realtive;
+  position: relative;
 }
 
 .search {
@@ -84,7 +84,7 @@ body {
 input {
   width: 100%;
   height: 34px;
-  color: #abb2bf;
+  color: #000;
   border: 1px solid #3b4048;
   border-radius: 5px;
   padding-left: 5px;
@@ -97,10 +97,12 @@ input {
   max-height: 85%;
   overflow: scroll;
 }
-#messages li .user-image {
-  /* width: 50px; */
-  /* display: inline-block; */
-}
+
+/* #messages li .user-image {
+  width: 50px; 
+  display: inline-block; 
+} */
+
 #messages li .user-message {
   margin-left: 10px;
   color: #222;

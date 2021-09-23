@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const socketio = require("socket.io");
 
-app.use(express.static(__dirname + "/publics"));
+app.use(express.static(__dirname + "/public"));
 
 const expressServer = app.listen(8000, () => {
   console.log("Server running on port 8000");
@@ -14,6 +14,7 @@ let namespaces = require("./data/namespaces");
 
 //Wait for any socket to connect and respond
 io.on("connection", (socket) => {
+
   //Build an array to send back with the img and endpoint for each namespace
   let nsData = namespaces.map((ns) => {
     return {
@@ -21,6 +22,7 @@ io.on("connection", (socket) => {
       endpoint: ns.endpoint,
     };
   });
+
   // console.log(nsData);
   //Send the nsData back to the client, using SOCKET not IO,
   //as we want it to go the client
@@ -31,30 +33,26 @@ io.on("connection", (socket) => {
 //Loop through each namespace and listen for a connection
 namespaces.forEach((namespace) => {
   io.of(namespace.endpoint).on("connection", (nsSocket) => {
-    
-    console.log("NSSOCKET HANDSHAKE", nsSocket.data)
+    console.log("NSSOCKET HANDSHAKE", nsSocket.data);
 
-    const username = nsSocket.data.username;
-
-
+    const username = usernameGenerator(6);
 
     // console.log(`${nsSocket.id} has joined ${namespace.endpoint}`);
-
     //A chat has conected to one of our chat group namespaces
     //Send that ns group info back
 
     nsSocket.emit("nsRoomLoad", namespace.rooms);
+
     nsSocket.on("joinRoom", async (roomToJoin) => {
       //Deal with history, once its available
 
       console.log("ROOMS IN THIS NSSOCKET", nsSocket.rooms);
 
       //ROOM TO LEAVE
-
-      const roomToLeave = nsSocket.rooms[0];
+      const roomToLeave = nsSocket.rooms[1];
       nsSocket.leave(roomToLeave);
 
-      updateUsersInRoom(namespace, roomToJoin);
+      updateUsersInRoom(namespace, roomToLeave);
 
       nsSocket.join(roomToJoin);
 
@@ -90,7 +88,8 @@ namespaces.forEach((namespace) => {
 
       const roomTitle = [...nsSocket.rooms][1];
 
-      console.log("ROOM TITLE", roomTitle)
+      console.log("ROOM TITLE", roomTitle);
+
       // We need to find the room object for this room
 
       const nsRoom = namespace.rooms.find((room) => {
@@ -108,7 +107,7 @@ namespaces.forEach((namespace) => {
 
 //Send back the number of users in this room to ALL sockets
 
-const updateUsersInRoom = async (namespace, roomToJoin) => {
+async function updateUsersInRoom(namespace, roomToJoin) {
   const clientsUpdate = await io
     .of(namespace.endpoint)
     .in(roomToJoin)
@@ -117,4 +116,16 @@ const updateUsersInRoom = async (namespace, roomToJoin) => {
   io.of(namespace.endpoint)
     .in(roomToJoin)
     .emit("updateMembers", clientsUpdate.size);
-};
+}
+
+//Generate Random Username
+function usernameGenerator(length) {
+  var result = "";
+  var characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  var charactersLength = characters.length;
+  for (var i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
