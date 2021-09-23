@@ -14,6 +14,8 @@ let namespaces = require("./data/namespaces");
 
 //Wait for any socket to connect and respond
 io.on("connection", (socket) => {
+
+  console.log(socket.handshake);
   //Build an array to send back with the img and endpoint for each namespace
   let nsData = namespaces.map((ns) => {
     return {
@@ -34,7 +36,7 @@ namespaces.forEach((namespace) => {
   io.of(namespace.endpoint).on("connection", (nsSocket) => {
     console.log("NSSOCKET HANDSHAKE", nsSocket.data);
 
-    const username = usernameGenerator(6);
+    const username = nsSocket.handshake.query.username;
 
     // console.log(`${nsSocket.id} has joined ${namespace.endpoint}`);
     //A chat has conected to one of our chat group namespaces
@@ -117,14 +119,4 @@ async function updateUsersInRoom(namespace, roomToJoin) {
     .emit("updateMembers", clientsUpdate.size);
 }
 
-//Generate Random Username
-function usernameGenerator(length) {
-  var result = "";
-  var characters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  var charactersLength = characters.length;
-  for (var i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() * charactersLength));
-  }
-  return result;
-}
+
