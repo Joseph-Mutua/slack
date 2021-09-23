@@ -28,6 +28,23 @@ function joinRoom(roomName) {
     document.querySelector(".curr-room-text").innerText = `${roomName}`;
   });
 
+  let searchBox = document.querySelector("#search-box");
+  searchBox.addEventListener("input", (e) => {
+    console.log(e.target.value);
+
+    let messages = Array.from(document.getElementsByClassName("message-text"));
+    console.log(messages);
+
+    messages.forEach((msg) => {
+      if (msg.innerText.indexOf(e.target.value) === -1) {
+        //Message doesnt contain user search Term
+        msg.style.display = "none";
+      } else {
+        msg.style.display = "block";
+      }
+    });
+  });
+
   function buildHTML(msg) {
     const convertedDate = new Date(msg.time).toLocaleString();
     const newHtml = `<li>

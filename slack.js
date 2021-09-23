@@ -14,7 +14,6 @@ let namespaces = require("./data/namespaces");
 
 //Wait for any socket to connect and respond
 io.on("connection", (socket) => {
-
   //Build an array to send back with the img and endpoint for each namespace
   let nsData = namespaces.map((ns) => {
     return {
@@ -44,13 +43,13 @@ namespaces.forEach((namespace) => {
     nsSocket.emit("nsRoomLoad", namespace.rooms);
 
     nsSocket.on("joinRoom", async (roomToJoin) => {
-      //Deal with history, once its available
-
       console.log("ROOMS IN THIS NSSOCKET", nsSocket.rooms);
 
       //ROOM TO LEAVE
-      const roomToLeave = nsSocket.rooms[1];
+      const roomToLeave = [...nsSocket.rooms][1];
       nsSocket.leave(roomToLeave);
+
+      console.log("ROOM I LEFT", roomToLeave);
 
       updateUsersInRoom(namespace, roomToLeave);
 

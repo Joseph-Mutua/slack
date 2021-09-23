@@ -1,5 +1,4 @@
 function joinNs(endpoint) {
-
   if (nsSocket) {
     //Check to see if nsSocket is actually a socket
     nsSocket.close();
@@ -13,7 +12,6 @@ function joinNs(endpoint) {
   nsSocket = io(`http://localhost:8000${endpoint}`);
 
   nsSocket.on("nsRoomLoad", (nsRooms) => {
-
     console.log(nsRooms);
 
     //Get the rooms in that Namespace
@@ -33,7 +31,7 @@ function joinNs(endpoint) {
 
     //Add a click listener for each Room
     let roomNodes = document.getElementsByClassName("room");
-    
+
     Array.from(roomNodes).forEach((elem) => {
       elem.addEventListener("click", (e) => {
         // console.log(`Someone clicked on ${e.target.innerText}`);
@@ -59,20 +57,21 @@ function joinNs(endpoint) {
   document
     .querySelector(".message-form")
     .addEventListener("submit", formSubmission);
+}
 
-  function formSubmission (e) {
-    //Prevent Form from automatic Submission
-    e.preventDefault();
-    let inputBox = document.querySelector("#user-message");
-    const newMessage = inputBox.value;
+function formSubmission(e) {
+  //Prevent Form from automatic Submission
+  e.preventDefault();
+  let inputBox = document.querySelector("#user-message");
+  const newMessage = inputBox.value;
 
-    nsSocket.emit("newMessageToServer", { text: newMessage });
-    inputBox.value = "";
-  };
+  nsSocket.emit("newMessageToServer", { text: newMessage });
+  inputBox.value = "";
+}
 
-  function buildHTML(msg) {
-    const convertedDate = new Date(msg.time).toLocaleString();
-    const newHtml = `<li>
+function buildHTML(msg) {
+  const convertedDate = new Date(msg.time).toLocaleString();
+  const newHtml = `<li>
               <div class="user-image">
                 <img src="${msg.avatar}" width="30" height="30"/>
               </div>
@@ -82,6 +81,5 @@ function joinNs(endpoint) {
               </div>
             </li>`;
 
-    return newHtml;
-  }
+  return newHtml;
 }
